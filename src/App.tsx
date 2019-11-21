@@ -1,4 +1,7 @@
 import React from "react";
+import wasmBytecode from "@webassemblyjs/helper-wasm-bytecode";
+import * as wasmParser from "@webassemblyjs/wasm-parser";
+
 import "./App.css";
 
 const [A, B] = [1, 4];
@@ -12,7 +15,6 @@ const manualWasmArray = [
   ...moduleVersion,
   ...endOfAdd.split(" ").map(b => parseInt(b, 16))
 ];
-console.log({ manualWasmArray });
 const manualWasmBuffer = new Buffer(manualWasmArray);
 
 async function wasmAddTest() {
@@ -26,6 +28,7 @@ async function wasmAddTest() {
 
 // https://github.com/xtuc/webassemblyjs/blob/master/packages/helper-wasm-bytecode/src/index.js
 const ByteCodeTable = ({ byteCode }: { byteCode: number[] }) => {
+  console.log("wasmParser", wasmParser.decode(byteCode, { dump: true }));
   return (
     <div
       style={{
@@ -35,26 +38,24 @@ const ByteCodeTable = ({ byteCode }: { byteCode: number[] }) => {
         gridTemplateRows: "1fr"
       }}
     >
-      {byteCode.map((b, i) => (
-        <>
-          <div
-            style={{
-              border: "1px solid #282c34",
-              background: "white",
-              fontSize: "1rem",
-              height: "2rem",
-              width: "2rem",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-            key={i}
-          >
-            {b.toString(16)}
-          </div>
-          {i % 4 === 3 && i % 8 !== 7 && <div />}
-        </>
-      ))}
+      {byteCode.map((b, i) => {
+        return (
+          <React.Fragment key={i}>
+            <div
+              title={JSON.stringify(wasmBytecode.symbolsByByte[b])}
+              className="cell"
+              // style={
+              //   {
+              //     // background: "white",
+              //   }
+              // }
+            >
+              {b.toString(16)}
+            </div>
+            {i % 4 === 3 && i % 8 !== 7 && <div />}
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 };
